@@ -179,7 +179,7 @@ void RRAM_set_NNEN(int value)
     tmp = (value >> 1) & 0xFF;
     set_GPIO_val((unsigned int) mapped_base2, 1, tmp);
     tmp = get_GPIO_val((unsigned int) mapped_base1, 2);
-    tmp = (value & 0x1) | (tmp & 0b11111110);
+    tmp = ((value & 0x1) << 7) | (tmp & 0b01111111);
     set_GPIO_val((unsigned int) mapped_base1, 2, tmp);
 }
 
@@ -257,7 +257,37 @@ int golden_1bitweight(int ay, int nnen)		//ay 5bit //weight 1bit
 	return sum;
 }
 
-
+int set_ay_dependon_macv(int MAC, int nnen){
+    int ay;
+    int nnen_one_num = popcnt(nnen);
+    if(nnen_one_num == 9){
+        if(MAC >= nnen_one_num)
+            ay = 16;
+        else if(MAC <= -nnen_one_num)
+            ay = 0;
+        else if(MAC > 0 && MAC < nnen_one_num)
+            ay = 16 + (nnen_one_num - MAC);
+        else if(MAC <= 0 && MAC > -nnen_one_num)
+            ay = MAC + nnen_one_num;
+        else if(MAC == 1)
+            ay = 15;
+        else
+            ay = 31;
+    }
+    else{
+        if(MAC >= nnen_one_num)
+            ay = 16;
+        else if(MAC <= -nnen_one_num)
+            ay = 0;
+        else if(MAC > 0 && MAC < nnen_one_num)
+            ay = 16 + (nnen_one_num - MAC);
+        else if(MAC <= 0 && MAC > -nnen_one_num)
+            ay = MAC + nnen_one_num;
+        else
+            ay = 14;
+    }
+    return ay;
+}
 
 int set_nnen(int nnref){
 	int nnen = 1;
@@ -279,6 +309,13 @@ int rand_ay(void){
         ay = ay + 16;
     return ay;
 }
+
+int SEL_control_DOUT(int SEL){
+	int DOUT = 0;
+	
+	return DOUT;
+}
+
 int main(int argc, char *argv[])
 {
     int device_pointer;
